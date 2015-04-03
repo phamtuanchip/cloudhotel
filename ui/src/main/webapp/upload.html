@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet"
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+<!-- Optional: Include the jQuery library -->
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"></script>
+<link rel="stylesheet"
+	href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/minified/jquery-ui.min.css">
+
+<!-- Optional: Incorporate the Bootstrap JavaScript plugins -->
+<script
+	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+
+
+
+<script>
+function supportAjaxUploadWithProgress() {
+  return supportFileAPI() && supportAjaxUploadProgressEvents() && supportFormData();
+
+  function supportFileAPI() {
+    var fi = document.createElement('INPUT');
+    fi.type = 'file';
+    return 'files' in fi;
+  };
+
+  function supportAjaxUploadProgressEvents() {
+    var xhr = new XMLHttpRequest();
+    return !! (xhr && ('upload' in xhr) && ('onprogress' in xhr.upload));
+  };
+
+  function supportFormData() {
+    return !! window.FormData;
+  }
+}
+ function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+
+    // Check if the XMLHttpRequest object has a "withCredentials" property.
+    // "withCredentials" only exists on XMLHTTPRequest2 objects.
+    xhr.open(method, url, true);
+
+  } else if (typeof XDomainRequest != "undefined") {
+
+    // Otherwise, check if XDomainRequest.
+    // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+
+  } else {
+
+    // Otherwise, CORS is not supported by the browser.
+    xhr = null;
+
+  }
+  return xhr;
+}
+
+ 
+
+
+$(function(){
+
+	//$('#upload').on('click', uploadUsingCORSRequest);
+	$('#upload').on('click', uploadByAjax);
+ 
+ });
+ 
+ function uploadUsingCORSRequest(){
+	console.log('click me');
+		var url = "service/rest/file/upload";
+		var fileInput = document.getElementById('file');
+		var file = fileInput.files[0];
+		var formData = new FormData();
+		formData.append('file', file);
+		var xhr = createCORSRequest('POST', url);
+		if (!xhr) {
+		  throw new Error('CORS not supported');
+		}
+		xhr.send(formData);
+		
+	console.log('sent');
+		
+ }
+ 
+function uploadByAjax(){
+
+		console.log('click me ajax');
+		var url = "service/rest/file/upload";
+		var fileInput = document.getElementById('file');
+		var file = fileInput.files[0];
+		var formData = new FormData();
+		formData.append('file', file);
+		
+		$.ajax({
+			url: url,
+			type: "POST",
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function (db) {
+			   console.log(db.download_url);
+			   $("#download").attr("href", db.download_url);
+			   $("#download").html(db.download_url);
+			}
+		 });
+		
+	console.log('sent');
+		
+ }
+ 
+</script>
+</head>
+<body>
+	<div class="container">
+		<p>Upload your file</p>
+
+		<form class="form-inline" role="form"
+			action="service/rest/file/upload" method="post" id="uploadform"
+			enctype="multipart/form-data">
+			<label for="file">Select file</label> <input type="file"
+				class="form-control" id="file" />
+			<button type="button" class="btn btn-default" id="upload">upload</button>
+		</form>
+		<a href="" id="download"> </a>
+	</div>
+</body>
+</html>
