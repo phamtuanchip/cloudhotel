@@ -21,7 +21,7 @@ public class WSRegister extends ResourceConfig {
     	register(HotelWebServiceImpl.class);
         register(ContainerResponseFilter.class);
         //for CORS request
-        register(CorsResponseFilter.class);
+       
         //for upload
         register(MultiPartFeature.class);
         
